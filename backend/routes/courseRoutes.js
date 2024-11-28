@@ -4,12 +4,19 @@ const Course = require('../models/Course');
 
 // Create a new course
 router.post('/', async (req, res) => {
-  const course = new Course(req.body);
   try {
+    const { name, courseID } = req.body;
+
+    // Validate request body
+    if (!name || !courseID) {
+      return res.status(400).send({ error: 'Name and courseID are required' });
+    }
+
+    const course = new Course({ name, courseID });
     await course.save();
     res.status(201).send(course);
-  } catch (e) {
-    res.status(400).send(e);
+  } catch (error) {
+    res.status(500).send({ error: 'Failed to create course', details: error.message });
   }
 });
 
@@ -17,9 +24,9 @@ router.post('/', async (req, res) => {
 router.get('/', async (req, res) => {
   try {
     const courses = await Course.find();
-    res.send(courses);
-  } catch (e) {
-    res.status(500).send(e);
+    res.status(200).send(courses);
+  } catch (error) {
+    res.status(500).send({ error: 'Failed to fetch courses', details: error.message });
   }
 });
 

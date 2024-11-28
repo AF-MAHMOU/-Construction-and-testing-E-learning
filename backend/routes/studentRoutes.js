@@ -4,12 +4,19 @@ const Student = require('../models/Student');
 
 // Create a new student
 router.post('/', async (req, res) => {
-  const student = new Student(req.body);
   try {
+    const { name, studentID, numOfCourses, grades, progress } = req.body;
+
+    // Validate request body
+    if (!name || !studentID) {
+      return res.status(400).send({ error: 'Name and studentID are required' });
+    }
+
+    const student = new Student({ name, studentID, numOfCourses, grades, progress });
     await student.save();
     res.status(201).send(student);
-  } catch (e) {
-    res.status(400).send(e);
+  } catch (error) {
+    res.status(500).send({ error: 'Failed to create student', details: error.message });
   }
 });
 
@@ -17,9 +24,9 @@ router.post('/', async (req, res) => {
 router.get('/', async (req, res) => {
   try {
     const students = await Student.find();
-    res.send(students);
-  } catch (e) {
-    res.status(500).send(e);
+    res.status(200).send(students);
+  } catch (error) {
+    res.status(500).send({ error: 'Failed to fetch students', details: error.message });
   }
 });
 
